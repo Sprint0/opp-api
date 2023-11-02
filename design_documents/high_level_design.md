@@ -1,20 +1,20 @@
 # High level design
 ## Application Architecture
-![achitecture](./architecture.png)
+![achitecture](img/architecture.png)
 
 ## Wireframe UI
 * Home page
 
-![home_page](./home_page.png)
+![home_page](img/home_page.png)
 * Login page
 
-![log_in](./log_in.png)
+![log_in](img/log_in.png)
 * Signup page
 
-![sign_up](./sign_up.png)
+![sign_up](img/sign_up.png)
 * Management page
 
-![management_page](./management_page.png)
+![management_page](img/management_page.png)
 
 ## Backend modules
 * Load balancer
