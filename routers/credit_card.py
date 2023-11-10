@@ -34,10 +34,7 @@ def is_valid_credit_card(credit_card_info: CreditCardInfo):
 
 
 def is_luhn_valid(card_number: str):
-    """
-    Validate the credit card number using the Luhn algorithm.
-    """
-    card_number = card_number.replace(" ", "")  # Remove spaces
+    card_number = card_number.replace(" ", "")
     if not card_number.isdigit():
         return False
 
@@ -47,10 +44,6 @@ def is_luhn_valid(card_number: str):
 
 
 def is_valid_expiration_date(expiration_date: str):
-    """
-    Validate the expiration date.
-    You can add more specific date validation logic here if needed.
-    """
     try:
         expiration_date_obj = datetime.strptime(expiration_date, "%m/%y")
     except ValueError:
@@ -64,10 +57,6 @@ def is_valid_expiration_date(expiration_date: str):
 
 
 def is_valid_cvv(cvv: str):
-    """
-    Validate the CVV code.
-    You can add more CVV validation logic here as needed.
-    """
     if not cvv.isdigit():
         return False
 
