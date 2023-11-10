@@ -15,6 +15,7 @@ from fastapi import Depends, HTTPException, status
 
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 
+
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
@@ -109,7 +110,7 @@ async def get_current_user(
     return user
 
 
-@app.post("/token", response_model=Token)
+@router.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     db = SessionLocal()
     user = authenticate_user(db, form_data.username, form_data.password)
