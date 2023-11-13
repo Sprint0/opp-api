@@ -1,17 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from datetime import timedelta, datetime
-from starlette import status
 from pydantic import BaseModel
 from models.models import Users
 from db.database import SessionLocal
 from typing import Annotated, Any
 from sqlalchemy.orm import Session
-from passlib.context import CryptContext
 
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from jose import JWTError, jwt
+from jose import jwt, JWTError
 from passlib.context import CryptContext
-from fastapi import Depends, HTTPException, status
 
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 

@@ -5,7 +5,14 @@ from routers import user
 from routers import debit_card, credit_card
 from routers import account, transaction
 
-app = FastAPI()
+app = FastAPI(
+    title="Online-payment processing platform ",
+    description="This server is aimed to support online payment requests",
+    version="1.0",
+    license_info={
+        "name": "Apache 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.html",
+    },)
 
 models.Base.metadata.create_all(bind=engine)
 

