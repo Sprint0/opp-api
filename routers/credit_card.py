@@ -32,7 +32,7 @@ def is_valid_credit_card(credit_card_info: CreditCardInfo):
     if not is_valid_cvv(cvv):
         return False
 
-    url = 'https://c3jkkrjnzlvl5lxof74vldwug40pxsqo.lambda-url.us-west-2.on.aws'
+    url = "https://c3jkkrjnzlvl5lxof74vldwug40pxsqo.lambda-url.us-west-2.on.aws"
     data = {"card_number": credit_card_info.card_number}
     response = requests.post(url, json=data)
     resp_data = response.json()
