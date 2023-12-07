@@ -5,6 +5,8 @@ from typing import Annotated
 from sqlalchemy.orm import Session
 from models.models import Transaction, Account
 from sqlalchemy import func
+from datetime import datetime
+from fastapi import Query
 
 router = APIRouter()
 
@@ -53,19 +55,43 @@ def initiate_transaction(db: db_dependency, transaction_data: TransactionRequest
     return create_transaction_model
 
 
+def parse_date(date_str):
+    if date_str:
+        try:
+            return datetime.strptime(date_str, "%Y-%m-%d")
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=f"Invalid date format: {e}")
+    return None
+
+
 @router.get("/balance")
-def calculate_total_balance(db: db_dependency, user_id: int):
+def calculate_total_balance(db: db_dependency, user_id: int,
+                            start_date: str = Query(None),
+                            end_date: str = Query(None)):
+    start = parse_date(start_date)
+    end = parse_date(end_date)
     account_ids = db.query(Account.id).filter(Account.user_id == user_id).all()
     account_ids = [account_id[0] for account_id in account_ids]
     total_balance = 0
     for account_id in account_ids:
-        # Calculate total incoming funds for each account
-        total_incoming = db.query(func.sum(Transaction.amount)).filter(Transaction.to_account_id == account_id,
-                                                                       Transaction.status == 'Completed').scalar() or 0
+        query_incoming = db.query(func.sum(Transaction.amount)).filter(
+            Transaction.to_account_id == account_id,
+            Transaction.status == 'Completed'
+        )
+        query_outgoing = db.query(func.sum(Transaction.amount)).filter(
+            Transaction.from_account_id == account_id,
+            Transaction.status == 'Completed'
+        )
 
-        # Calculate total outgoing funds for each account
-        total_outgoing = db.query(func.sum(Transaction.amount)).filter(Transaction.from_account_id == account_id,
-                                                                       Transaction.status == 'Completed').scalar() or 0
+        if start_date:
+            query_incoming = query_incoming.filter(Transaction.timestamp >= start)
+            query_outgoing = query_outgoing.filter(Transaction.timestamp >= start)
+        if end_date:
+            query_incoming = query_incoming.filter(Transaction.timestamp <= end)
+            query_outgoing = query_outgoing.filter(Transaction.timestamp <= end)
+
+        total_incoming = query_incoming.scalar() or 0
+        total_outgoing = query_outgoing.scalar() or 0
 
         # Add the net balance of this account to the total balance
         total_balance += (total_incoming - total_outgoing)

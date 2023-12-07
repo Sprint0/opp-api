@@ -23,9 +23,8 @@ class Account(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey('users.id'))
-    user = relationship('Users', back_populates='accounts')
-    # Add balance to account
     balance = Column(Float)
+    user = relationship('Users', back_populates='accounts')
 
 
 class Transaction(Base):
