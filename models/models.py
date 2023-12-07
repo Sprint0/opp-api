@@ -16,6 +16,8 @@ class Users(Base):
     is_active = Column(Boolean, default=True)
     phone_number = Column(String)
     accounts = relationship("Account", back_populates="user")
+    debt_cards = relationship("DebitCard", back_populates="user")
+    credit_cards = relationship("CreditCard", back_populates="user")
 
 
 class Account(Base):

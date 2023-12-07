@@ -93,8 +93,8 @@ def is_luhn_valid(card_number: str):
 
 
 def is_valid_expiration_date(expiration_date: str):
-    current_date = datetime.utcnow()
-    exp_date = datetime.strptime(expiration_date, "%m/%y")
+    current_date = datetime.datetime.utcnow()
+    exp_date = datetime.datetime.strptime(expiration_date, "%m/%y")
     return exp_date > current_date
 
 
