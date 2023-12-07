@@ -1,26 +1,46 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
+from db.database import SessionLocal
+from typing import Annotated
+from sqlalchemy.orm import Session
+from models.models import Account
+from typing import List
 
 router = APIRouter()
 
 
 class AccountRequest(BaseModel):
-    user_id: str
-    account_type: str
-    initial_balance: float
+    user_id: int
 
 
-class AccountResponse(BaseModel):
-    account_id: str
+class AccountResp(BaseModel):
+    id: int
 
 
-@router.post("/accounts", response_model=AccountResponse, status_code=201)
-def create_account(account_data: AccountRequest):
-    # Validate user_id and account_type
-    if not account_data.user_id or not account_data.account_type:
-        raise HTTPException(status_code=400, detail="Invalid user ID or account type")
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
-    # Need id logic here
-    account_id = "5678"
 
-    return {"account_id": account_id}
+db_dependency = Annotated[Session, Depends(get_db)]
+
+
+@router.post("/accounts", status_code=status.HTTP_201_CREATED)
+async def create_account(db: db_dependency, account_data: AccountRequest):
+    create_account_model = Account(
+        user_id=account_data.user_id
+    )
+    db.add(create_account_model)
+    db.commit()
+    db.refresh(create_account_model)
+
+
+@router.get("/accounts", response_model=List[AccountResp])
+def read_accounts(db: db_dependency, user_id: int):
+    query = db.query(Account)
+    query = query.filter(Account.user_id == user_id)
+    accounts = query.all()
+    return accounts
