@@ -9,16 +9,16 @@ router = APIRouter()
 
 
 class FundAndFraudCheckRequest(BaseModel):
-    transaction_id = int
-    account_id = int
-    amount = float
+    transaction_id: int
+    account_id: int
+    amount: float
 
 
 class FundAndFraudCheckResponse(BaseModel):
-    transaction_id = int
-    account_id = int
-    amount = float
-    status = str
+    transaction_id: int
+    account_id: int
+    amount: float
+    status: str
 
 
 # Fetch database

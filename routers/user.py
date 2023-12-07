@@ -63,12 +63,22 @@ class UserCreate(BaseModel):
     phone_number: str
 
 
+class UserCreateResp(BaseModel):
+    id: int
+    email: str
+    username: str
+    first_name: str
+    surname: str
+    is_active: bool
+    phone_number: str
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=UserCreateResp, status_code=status.HTTP_201_CREATED)
 async def create_user(db: db_dependency, user_create: UserCreate):
     create_user_model = Users(
         email=user_create.email,
@@ -82,6 +92,7 @@ async def create_user(db: db_dependency, user_create: UserCreate):
 
     db.add(create_user_model)
     db.commit()
+    return create_user_model
 
 
 async def get_current_user(
