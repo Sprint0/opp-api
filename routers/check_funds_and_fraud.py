@@ -63,14 +63,3 @@ def check_fraud(amount):
     if amount >= 10000:
         return False
     return True
-
-
-# def check_funds_and_fraud(card_number: str, amt: float):
-#     url = "https://223didiouo3hh4krxhm4n4gv7y0pfzxk.lambda-url.us-west-2.on.aws"
-#     data = {"card_number": card_number}
-#     response = requests.post(url, json=data)
-#     resp_data = response.json()
-#     if resp_data["success"] == "true":
-#         return {"success": True, "msg": "Card number has sufficient funds and is not fraudulent"}
-#     else:
-#         return {"success": False, "msg": "Fund check or fraud detection failed"}

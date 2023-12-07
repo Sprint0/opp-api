@@ -97,3 +97,34 @@ def calculate_total_balance(db: db_dependency, user_id: int,
         total_balance += (total_incoming - total_outgoing)
     round_balance = round(total_balance, 4)
     return {"user_id": user_id, "total_balance": round_balance}
+
+
+@router.get("/transactions_of_account")
+def get_all_transactions(db: db_dependency, account_id: int):
+    transactions = db.query(Transaction).filter(Transaction.from_account_id == account_id or
+                                                Transaction.to_account_id == account_id).all()
+    total_balance = 0
+    for transaction in transactions:
+        transaction_id = transaction.id
+        from_account_id = transaction.from_account_id
+        to_account_id = transaction.to_account_id
+        amount = transaction.amount
+        status = transaction.status
+        timestamp = transaction.timestamp
+        print(f"Transaction ID: {transaction_id}, Amount: {amount}, status: {status}, \n"
+              f"From: {from_account_id}, To: {to_account_id}, Date: {timestamp})")
+        if from_account_id == account_id:
+            total_balance -= amount
+        else:
+            total_balance += amount
+    print(f"Account Id: {account_id}, Total Balance: {total_balance}")
+
+
+@router.get("/accounts_receivables")
+def get_all_accounts_receivables(db: db_dependency):
+    pending_transactions = db.query(Transaction).filter(Transaction.status == "Pending").all()
+    for transaction in pending_transactions:
+        transaction_id = transaction.id
+        amount = transaction.amount
+        to_account = transaction.to_account_id
+        print(f"Transaction ID: {transaction_id}, Amount: {amount}, Account Receiving: {to_account})")
