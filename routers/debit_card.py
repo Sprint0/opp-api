@@ -1,6 +1,10 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
+from typing import Annotated, List
 from pydantic import BaseModel
 from datetime import datetime
+from sqlalchemy.orm import Session
+from db.database import SessionLocal
+from models.models import DebitCard
 
 router = APIRouter()
 
@@ -9,14 +13,49 @@ class DebitCardInfo(BaseModel):
     card_number: str
     expiration_date: str
     cvv: str
+    user_id: int
 
 
-@router.post("/validate-debit-card")
-async def validate_debit_card(debit_card_info: DebitCardInfo):
-    if is_valid_debit_card(debit_card_info):
-        return {"message": "Debit card is valid"}
+class DebitCardResp(BaseModel):
+    card_number: str
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+db_dependency = Annotated[Session, Depends(get_db)]
+
+
+@router.post("/validate-debt-card", status_code=status.HTTP_201_CREATED)
+async def validate_debt_card(db: db_dependency, debt_card_info: DebitCardInfo):
+    if is_valid_debit_card(debt_card_info):
+        debit_card = DebitCard(
+            card_number=debt_card_info.card_number,
+            expiration_date=debt_card_info.expiration_date,
+            cvv=debt_card_info.cvv,
+            user_id=debt_card_info.user_id,
+        )
+        db.add(debit_card)
+        db.commit()
+        db.refresh(debit_card)
+        return {"message": "Debt card is valid and has been saved to the database"}
     else:
-        return {"message": "Debit card is invalid"}
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid debt card"
+        )
+
+
+@router.get("/debit-cards", response_model=List[DebitCardResp])
+def read_debit_cards(db: db_dependency, user_id: int):
+    query = db.query(DebitCard)
+    query = query.filter(DebitCard.user_id == user_id)
+    debit_cards = query.all()
+    return debit_cards
 
 
 def is_valid_debit_card(debit_card_info: DebitCardInfo) -> bool:
