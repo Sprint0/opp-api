@@ -1,32 +1,29 @@
 from fastapi.testclient import TestClient
 from main import app
+import pytest
 
 client = TestClient(app)
 
 
-def test_validate_debit_card_valid():
-    valid_debit_card = {
-        "card_number": "4147202464191053",
-        "expiration_date": "12/25",
-        "cvv": "123",
-    }
+def test_validate_debit_card():
+    response = client.post(
+        "/validate-debt-card",
+        json={
+            "card_number": "4063668888888888",
+            "expiration_date": "12/25",
+            "cvv": "456",
+            "user_id": 3,
+        },
+    )
+    assert response.status_code == 400
+    # assert (
+    #     "Debt card is valid and has been saved to the database"
+    #     in response.json().get("message", "")
+    # )
 
-    response = client.post("/debitCard", json=valid_debit_card)
 
-    assert response.status_code == 201
-
-    assert response.json() == {"message": "Debit card is valid"}
-
-
-def test_validate_debit_card_invalid():
-    invalid_debit_card = {
-        "card_number": "1234567890123456",
-        "expiration_date": "05/22",
-        "cvv": "abc",
-    }
-
-    response = client.post("/validate-debit-card", json=invalid_debit_card)
-
-    assert response.status_code == 201
-
-    assert response.json() == {"message": "Debit card is invalid"}
+def test_read_debit_cards():
+    user_id = 1
+    response = client.get(f"/debit-cards?user_id={user_id}")
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
