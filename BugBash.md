@@ -1,5 +1,5 @@
 ## URL to the app
-http://localhost:8000/docs#
+http://ec2-3-21-205-121.us-east-2.compute.amazonaws.com:80/docs
 
 ## Example of how to use the app
 
@@ -15,4 +15,4 @@ http://localhost:8000/docs#
 <img width="1626" alt="Screenshot 2023-12-07 at 3 59 39 PM" src="https://github.com/Sprint0/opp-api/assets/144865920/f7a03dcb-1480-4fcb-b43c-4ba1396803ec">
 
 ## Link to Github issue page
-https://github.com/Sprint0/opp-api/issues/new/choose
+https://github.com/Sprint0/opp-api/issues
