@@ -100,11 +100,15 @@ def calculate_total_balance(db: db_dependency, user_id: int,
 
 
 @router.get("/transactions_of_account")
-def get_all_transactions(db: db_dependency, account_id: int):
-    transactions = db.query(Transaction).filter(Transaction.from_account_id == account_id or
-                                                Transaction.to_account_id == account_id).all()
+def get_all_transactions(db: db_dependency, user_id: int):
+    account_ids = db.query(Account.id).filter(Account.user_id == user_id)
+    all_transactions = []
+    for account_id in account_ids:
+        transactions = db.query(Transaction).filter(Transaction.from_account_id == account_id or
+                                                    Transaction.to_account_id == account_id).all()
+        all_transactions.append(transactions)
     total_balance = 0
-    for transaction in transactions:
+    for transaction in all_transactions:
         transaction_id = transaction.id
         from_account_id = transaction.from_account_id
         to_account_id = transaction.to_account_id
@@ -113,11 +117,12 @@ def get_all_transactions(db: db_dependency, account_id: int):
         timestamp = transaction.timestamp
         print(f"Transaction ID: {transaction_id}, Amount: {amount}, status: {status}, \n"
               f"From: {from_account_id}, To: {to_account_id}, Date: {timestamp})")
-        if from_account_id == account_id:
+        if from_account_id in account_ids:
             total_balance -= amount
-        else:
+        elif to_account_id in account_ids:
             total_balance += amount
-    print(f"Account Id: {account_id}, Total Balance: {total_balance}")
+    round_balance = round(total_balance, 4)
+    print(f"User Id: {user_id}, Total Balance: {round_balance}")
 
 
 @router.get("/accounts_receivables")
