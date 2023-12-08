@@ -41,7 +41,8 @@ db_dependency = Annotated[Session, Depends(get_db)]
 @router.post("/transactions", response_model=TransactionResponse, status_code=201)
 def initiate_transaction(db: db_dependency, transaction_data: TransactionRequest):
     # Validate from_account_id, to_account_id, and amount
-    if not transaction_data.from_account_id or not transaction_data.to_account_id or transaction_data.amount <= 0:
+    if not transaction_data.from_account_id or not transaction_data.to_account_id \
+            or transaction_data.amount <= 0:
         raise HTTPException(status_code=400, detail="Invalid account IDs or amount")
 
     create_transaction_model = Transaction(

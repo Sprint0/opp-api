@@ -35,7 +35,8 @@ def check_funds_and_fraud_endpoint(db: db_dependency, request: FundAndFraudCheck
             not request.account_id or not request.amount or request.amount <= 0:
         raise HTTPException(status_code=400, detail="Invalid Request, missing request parameters")
 
-    user_id, card_id, account_id, card_type, amount = request.user_id, request.card_id, request.account_id, request.card_type, request.amount
+    user_id, card_id, account_id, card_type, amount = \
+        request.user_id, request.card_id, request.account_id, request.card_type, request.amount
     account_user_id = db.query(Account.user_id).filter(Account.id == account_id).first()[0]
 
     if account_user_id != user_id:

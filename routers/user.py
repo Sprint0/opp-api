@@ -1,19 +1,15 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import Annotated
 from datetime import timedelta, datetime
-from pydantic import BaseModel
-from models.models import Users
-from db.database import SessionLocal
-from typing import Annotated, Any
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-
+from pydantic import BaseModel
 from jose import jwt, JWTError
 from passlib.context import CryptContext
-
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
-
+from models.models import Users
+from db.database import SessionLocal
 
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -96,7 +92,7 @@ async def create_user(db: db_dependency, user_create: UserCreate):
 
 
 async def get_current_user(
-    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
+        token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
 ):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
