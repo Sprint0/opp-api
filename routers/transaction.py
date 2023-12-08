@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from db.database import SessionLocal
 from typing import Annotated
+from sqlalchemy import or_, and_
 from sqlalchemy.orm import Session
 from models.models import Transaction, Account
 from sqlalchemy import func
@@ -101,35 +102,32 @@ def calculate_total_balance(db: db_dependency, user_id: int,
 
 @router.get("/transactions_of_account")
 def get_all_transactions(db: db_dependency, user_id: int):
-    account_ids = db.query(Account.id).filter(Account.user_id == user_id)
+    account_ids = db.query(Account.id).filter(Account.user_id == user_id).all()
+    account_ids = [account_id[0] for account_id in account_ids]
     all_transactions = []
     for account_id in account_ids:
-        transactions = db.query(Transaction).filter(Transaction.from_account_id == account_id or
-                                                    Transaction.to_account_id == account_id).all()
+        transactions = db.query(Transaction).filter(and_(
+            or_(
+                Transaction.from_account_id == account_id,
+                Transaction.to_account_id == account_id
+            ),
+            Transaction.status == "Completed")).all()
         all_transactions.append(transactions)
-    total_balance = 0
-    for transaction in all_transactions:
-        transaction_id = transaction.id
-        from_account_id = transaction.from_account_id
-        to_account_id = transaction.to_account_id
-        amount = transaction.amount
-        status = transaction.status
-        timestamp = transaction.timestamp
-        print(f"Transaction ID: {transaction_id}, Amount: {amount}, status: {status}, \n"
-              f"From: {from_account_id}, To: {to_account_id}, Date: {timestamp})")
-        if from_account_id in account_ids:
-            total_balance -= amount
-        elif to_account_id in account_ids:
-            total_balance += amount
-    round_balance = round(total_balance, 4)
-    print(f"User Id: {user_id}, Total Balance: {round_balance}")
+    return all_transactions
 
 
 @router.get("/accounts_receivables")
-def get_all_accounts_receivables(db: db_dependency):
-    pending_transactions = db.query(Transaction).filter(Transaction.status == "Pending").all()
-    for transaction in pending_transactions:
-        transaction_id = transaction.id
-        amount = transaction.amount
-        to_account = transaction.to_account_id
-        print(f"Transaction ID: {transaction_id}, Amount: {amount}, Account Receiving: {to_account})")
+def get_all_accounts_receivables(db: db_dependency, user_id: int):
+    account_ids = db.query(Account.id).filter(Account.user_id == user_id).all()
+    account_ids = [account_id[0] for account_id in account_ids]
+
+    all_transactions = []
+    for account_id in account_ids:
+        transactions = db.query(Transaction).filter(and_(
+            or_(
+                Transaction.from_account_id == account_id,
+                Transaction.to_account_id == account_id
+            ),
+            Transaction.status == "Pending")).all()
+        all_transactions.append(transactions)
+    return all_transactions
